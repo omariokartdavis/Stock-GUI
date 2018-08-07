@@ -1,0 +1,48 @@
+#code is producing an ssl certificate verify error. issue with work computer connecting to internet
+
+from tkinter import *
+import stock
+
+
+class Application(Frame):
+    """A GUI that has text entry allowing for a stock ticker input"""
+    
+    def __init__(self):
+        """Initialize the Frame"""
+        self.root = Tk()
+        self.root.title("Stock Graphs")
+        
+        Frame.__init__(self,self.root)
+        self.grid()
+        self.create_widgets()
+        self.root.bind("<Return>", self.enter)
+        self.root.bind("<Escape>", self.close)
+        
+    def create_widgets(self):
+        """Create button, entry, and label widgets"""
+        self.instruction = Label(self, text = "Enter the Stock Ticker you would like to find")
+        self.instruction.grid(row = 0, column = 0, columnspan = 2, sticky = W)
+        
+        self.enter_stock = Label(self, text = "Stock (Caps only):")
+        self.enter_stock.grid(row = 1, column = 0, sticky = W)
+        
+        self.stock = Entry(self, width=20)
+        self.stock.grid(row = 1, column = 1, sticky = W)
+        self.stock.focus_force()
+        
+        self.submit_button = Button(self, text = "Submit")
+        self.submit_button.bind("<Button-1>", self.enter)
+        self.submit_button.grid(row = 2, column = 0, sticky = W)
+        
+    def enter(self, event):
+        """Show stock info based on stock ticker entered"""
+        ticker = self.stock.get()
+        stock.GetStock(ticker)
+    
+    def close(self, event):
+        self.root.destroy()        
+    
+    def start(self):
+        self.root.mainloop()
+        
+Application().start()
