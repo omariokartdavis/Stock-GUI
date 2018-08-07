@@ -6,48 +6,52 @@ from pandas import ExcelWriter
 from pandas import ExcelFile
 import datetime
 
-def GetStock(name):
-    """takes ticker and pulls info from alphavantage"""
+class Stock:
+    def __init__(self, ticker):
+        self.ticker = ticker
+        self.file_name = self.ticker + 'Intraday Data.xlsx'
+        self.sheet_name = 'Sheet1'
+        self.date_time = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
+        self.output_size = 'compact'
+        self.time_interval = '1min'
+        self.key = 'DMQB0PL4AAPZEQSC' # alphavantage key
+        
+    def get_data(self):
+        """Pulls the stock data from alphavantage"""
     
-    stock_symbol = name
-    file_name = stock_symbol + ' Intraday Data.xlsx'
-    sheet_name = 'Sheet1'
-    date_time = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
-    output_size = 'compact'    #can be compact or full. compact is last 100 mins.
-    time_interval = '1min'     #can be 1, 5, 15, 30, or 60min for intraday data
-    alphavantage_key = 'DMQB0PL4AAPZEQSC'
-    
-    ts = TimeSeries(key=alphavantage_key, output_format='pandas') #output_format changes data from JSON to pandas. can also be a csv file
-    data, meta_data = ts.get_intraday(symbol=stock_symbol,interval=time_interval, outputsize=output_size)
-
-    #define the time to be used for the x-axis to the length of the data dictionary going from high end to 0.
-    time_range = range(len(data), 0, -1)
-
-    
-    df = pd.DataFrame({'Price':data['close'],
-                   'Time':time_range})
-
-    writer = ExcelWriter(file_name)
-    df.to_excel(writer,sheet_name,index=False)
-    writer.save()
-
-    x = df['Time']
-    y = df['Price']
-
-    if output_size == 'compact':
-        my_xticks = range(len(data), -1, -5)
-    else:
-        my_xticks = range(len(data), -1, -300)
-
-    #some bull to get the x axis to properly show time from xxx mins ago to now.
-    
-    plt.xticks(my_xticks)
-    plt.gca().invert_xaxis()
-
-    plt.plot(x,y)
-    plt.title(stock_symbol + ''' Intraday Share Price
-    ('''+ date_time+ ')')
-    plt.xlabel('Time (In minutes from current time)')
-    plt.ylabel('Share Price')
-    plt.grid()
-    plt.show()
+        ts = TimeSeries(key=self.key, output_format = 'pandas')
+        data, meta_data = ts.get_intraday(self.ticker, interval = self.time_interval, outputsize = self.output_size)
+        
+        timerange = range(len(data), 0, -1)
+        
+        df = pd.DataFrame({'Price':data['close'],
+                           'Time':time_range})
+        
+    def plot_data(self):
+        """Plots the data using matplotlib"""    
+                
+        x = df['Time']
+        y = df['Price']
+        
+        if self.output_size == 'compact':
+            my_xticks = range(len(data), -1, -5)
+        else:
+            my_xticks = range(len(data), -1, -300)
+        
+        plt.xticks(my_xticks)
+        plt.gca().invert_xaxis()
+        
+        plt.plot(x,y)
+        plt.title(self.ticker + ''' Intraday Share Price
+        (''' + self.date_time + ')')
+        plt.xlabel('Time (In minutes from current time)')
+        plt.ylabel('Share Price')
+        plt.grid()
+        plt.show()
+        
+    def write_data(self):
+        """Writes the pandas dataframe of the data to an excel file"""
+        
+        writer = ExcelWriter(self.file_name)
+        df.to_excel(writer, self.sheet_name, index = False)
+        writer.save()
