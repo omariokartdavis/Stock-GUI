@@ -1,7 +1,7 @@
-#code is producing an ssl certificate verify error. issue with work computer connecting to internet
+#code is producing an ssl certificate verify error. issue with work computer connecting to internet and alphavantage
 
 from tkinter import *
-import stock
+import stockpull as sp
 
 
 class Application(Frame):
@@ -26,18 +26,31 @@ class Application(Frame):
         self.enter_stock = Label(self, text = "Stock (Caps only):")
         self.enter_stock.grid(row = 1, column = 0, sticky = W)
         
-        self.stock = Entry(self, width=20)
-        self.stock.grid(row = 1, column = 1, sticky = W)
-        self.stock.focus_force()
+        self.stock_name = Entry(self, width=20)
+        self.stock_name.grid(row = 1, column = 1, sticky = W)
+        self.stock_name.focus_force()
         
         self.submit_button = Button(self, text = "Submit")
         self.submit_button.bind("<Button-1>", self.enter)
-        self.submit_button.grid(row = 2, column = 0, sticky = W)
+        self.submit_button.grid(row = 2, column = 1, sticky = E)
         
+        #The following text display is used to display info from the stock entered. Simply for testing, can delete when final
+        self.test_display = Text(self, width = 28, height = 2, wrap = WORD) 
+        self.test_display.grid(row = 3, column = 0, columnspan = 2, sticky = W)
+                                 
     def enter(self, event):
         """Show stock info based on stock ticker entered"""
-        ticker = self.stock.get()
-        stock.GetStock(ticker)
+        ticker = self.stock_name.get()
+        stock = sp.Stock(ticker)
+        
+        #these two functions are commented out because they currently cause on SSL certification error on my work comp.
+        #stock.get_data()
+        #stock.plot_data()
+        
+        #The following shows a display with the stock ticker symbol and the file name that would be created.
+        #Its used to ensure that the text entry and import file are working properly. Simply for testing, can delete when final
+        self.test_display.delete(0.0, END)
+        self.test_display.insert(0.0, stock.ticker +"\n" + stock.file_name)
     
     def close(self, event):
         self.root.destroy()        
