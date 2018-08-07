@@ -20,23 +20,23 @@ class Stock:
         """Pulls the stock data from alphavantage"""
     
         ts = TimeSeries(key=self.key, output_format = 'pandas')
-        data, meta_data = ts.get_intraday(self.ticker, interval = self.time_interval, outputsize = self.output_size)
+        self.data, self.meta_data = ts.get_intraday(self.ticker, interval = self.time_interval, outputsize = self.output_size)
         
-        timerange = range(len(data), 0, -1)
+        time_range = range(len(self.data), 0, -1)
         
-        df = pd.DataFrame({'Price':data['close'],
+        self.df = pd.DataFrame({'Price':self.data['4. close'],
                            'Time':time_range})
         
     def plot_data(self):
         """Plots the data using matplotlib"""    
                 
-        x = df['Time']
-        y = df['Price']
+        x = self.df['Time']
+        y = self.df['Price']
         
         if self.output_size == 'compact':
-            my_xticks = range(len(data), -1, -5)
+            my_xticks = range(len(self.data), -1, -5)
         else:
-            my_xticks = range(len(data), -1, -300)
+            my_xticks = range(len(self.data), -1, -300)
         
         plt.xticks(my_xticks)
         plt.gca().invert_xaxis()
@@ -53,5 +53,5 @@ class Stock:
         """Writes the pandas dataframe of the data to an excel file"""
         
         writer = ExcelWriter(self.file_name)
-        df.to_excel(writer, self.sheet_name, index = False)
+        self.df.to_excel(writer, self.sheet_name, index = False)
         writer.save()
